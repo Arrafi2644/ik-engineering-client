@@ -67,13 +67,14 @@ import OurPeople from "./pages/OurPeople";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminHome from "./pages/admin/AdminHome";
-import Users from "./pages/admin/User";
+import Users from "./pages/admin/Users";
 import ProtectedRoute from "./components/ProtectedRoute.";
 import { HelmetProvider } from "react-helmet-async";
 import ServicesPage from "./pages/admin/Services";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "./components/ui/tooltip";
 import Login from "./pages/auth/Login";
+import SettingsPage from "./pages/admin/Settings";
 const queryClient = new QueryClient()
 
 const App = () => {
@@ -101,6 +102,7 @@ const App = () => {
                   <Route index element={<AdminHome />} />
                   <Route path="user-management" element={<Users />} />
                   <Route path="service-management" element={<ServicesPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
