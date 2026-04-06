@@ -299,9 +299,9 @@ const Services = () => {
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
   const location = useLocation();
 
-  const newServices = useServices();
+  const services = useServices();
 
-  const serviceList = newServices?.data?.data ?? [];
+  const serviceList = services?.data?.data ?? [];
 
   const sidebarItems = serviceList.map((s: any) => s.title);
 
@@ -361,7 +361,7 @@ const Services = () => {
     ]
   };
 
-  if (newServices?.isPending) {
+  if (services?.isPending) {
     return (
       <div className="pt-32 pb-24 min-h-screen bg-light-gray flex items-center justify-center">
         <p className="text-xl font-open-sans text-secondary-grey">Loading services...</p>
@@ -369,7 +369,7 @@ const Services = () => {
     );
   }
 
-  if (newServices?.error) {
+  if (services?.error) {
     return (
       <div className="pt-32 pb-24 min-h-screen bg-light-gray flex items-center justify-center">
         <p className="text-xl font-open-sans text-red-500">Failed to load services. Please try again later.</p>

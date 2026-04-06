@@ -28,6 +28,7 @@ interface IFeature {
 interface IServiceForm {
   title: string;
   shortDescription: string;
+  serviceIcon: string;
   image: File | null;
   features: IFeature[];
 }
@@ -50,16 +51,16 @@ export default function UpdateServiceModal({
   );
   const [isNewImage, setIsNewImage] = useState(false);
   const { refetch } = useServices();
+  const [updating, setUpdating] = useState(false);
 
   const { register, handleSubmit, control, reset, setValue } =
     useForm<IServiceForm>({
       defaultValues: {
         title: service.title ?? "",
         shortDescription: service.shortDescription ?? "",
+        serviceIcon: service.serviceIcon ?? "",
         image: null,
-        features: service.features?.length
-          ? service.features
-          : [{ title: "" }],
+        features: service.features?.length ? service.features : [{ title: "" }],
       },
     });
 
@@ -68,15 +69,13 @@ export default function UpdateServiceModal({
     name: "features",
   });
 
-  // Reset form when service prop changes
   useEffect(() => {
     reset({
       title: service.title ?? "",
       shortDescription: service.shortDescription ?? "",
+      serviceIcon: service.serviceIcon ?? "",
       image: null,
-      features: service.features?.length
-        ? service.features
-        : [{ title: "", description: "", icon: "" }],
+      features: service.features?.length ? service.features : [{ title: "" }],
     });
     setImagePreview(service.image ?? null);
     setIsNewImage(false);
@@ -113,21 +112,26 @@ export default function UpdateServiceModal({
         JSON.stringify({
           title: data.title,
           shortDescription: data.shortDescription,
+          serviceIcon: data.serviceIcon,
           features: data.features,
         })
       );
 
-      await axios.patch(
-        `http://localhost:3005/api/service/update-service/${service._id}`,
+      setUpdating(true);
+      const res = await axios.patch(
+        `https://ikengineering.co.nz/api/service/update-service/${service._id}`,
+        // `http://localhost:3005/api/service/update-service/${service._id}`,
         formData
       );
-
-      refetch();
-      toast.success("Service updated successfully!");
-
-      onSuccess?.();
-      handleClose();
+      if (res.data.success) {
+        refetch();
+        setUpdating(false);
+        toast.success("Service updated successfully!");
+        onSuccess?.();
+        handleClose();
+      }
     } catch (err: any) {
+      setUpdating(false);
       toast.error(err?.response?.data?.message || "Failed to update service");
     }
   };
@@ -156,7 +160,7 @@ export default function UpdateServiceModal({
 
         <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 space-y-6">
 
-          {/* Basic Info Section */}
+          {/* Basic Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 rounded-full bg-amber-500" />
@@ -179,10 +183,22 @@ export default function UpdateServiceModal({
                   className="resize-none min-h-[80px] bg-muted/30 border-border/60 focus-visible:ring-amber-500/30 focus-visible:border-amber-400"
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Service Icon <span className="text-red-500">*</span></Label>
+                <Input
+                  {...register("serviceIcon")}
+                  placeholder="e.g. Wrench, Cpu, Globe, Menu"
+                  className="h-10 bg-muted/30 border-border/60 focus-visible:ring-amber-500/30 focus-visible:border-amber-400"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter a Lucide icon name that represents this service
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Image Section */}
+          {/* Image */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 rounded-full bg-amber-500" />
@@ -191,14 +207,8 @@ export default function UpdateServiceModal({
 
             {imagePreview ? (
               <div className="relative group rounded-lg overflow-hidden border border-border/60 bg-muted/20">
-                <img
-                  src={imagePreview}
-                  alt="Service preview"
-                  className="w-full h-44 object-cover"
-                />
+                <img src={imagePreview} alt="Service preview" className="w-full h-44 object-cover" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
-
-                {/* Change image overlay button */}
                 <label className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <div className="flex items-center gap-2 bg-black/60 text-white text-xs font-medium px-4 py-2 rounded-full">
                     <RefreshCw className="w-3.5 h-3.5" />
@@ -206,7 +216,6 @@ export default function UpdateServiceModal({
                   </div>
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                 </label>
-
                 {isNewImage && (
                   <Button
                     type="button"
@@ -218,7 +227,6 @@ export default function UpdateServiceModal({
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 )}
-
                 <div className="absolute bottom-2 left-3">
                   <span className="text-[10px] text-white bg-black/50 px-2 py-0.5 rounded-full">
                     {isNewImage ? "New image selected" : "Current image"}
@@ -243,7 +251,7 @@ export default function UpdateServiceModal({
             )}
           </div>
 
-          {/* Features Section */}
+          {/* Features */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -291,13 +299,11 @@ export default function UpdateServiceModal({
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <Input
-                      placeholder="Feature title"
-                      {...register(`features.${index}.title`)}
-                      className="h-9 text-sm bg-background border-border/60 focus-visible:ring-amber-500/30 focus-visible:border-amber-400"
-                    />
-                  </div>
+                  <Input
+                    placeholder="Feature title"
+                    {...register(`features.${index}.title`)}
+                    className="h-9 text-sm bg-background border-border/60 focus-visible:ring-amber-500/30 focus-visible:border-amber-400"
+                  />
                 </div>
               ))}
             </div>
@@ -305,22 +311,18 @@ export default function UpdateServiceModal({
 
           <Separator />
 
-          {/* Footer Actions */}
+          {/* Footer */}
           <div className="flex items-center justify-end gap-3 pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              className="h-9 px-5 text-sm"
-            >
+            <Button type="button" variant="outline" onClick={handleClose} className="h-9 px-5 text-sm">
               Cancel
             </Button>
             <Button
+              disabled={updating}
               type="submit"
               className="h-9 px-5 text-sm gap-2 bg-amber-500 hover:bg-amber-600 text-white"
             >
               <Pencil className="w-3.5 h-3.5" />
-              Save Changes
+              {updating ? "Updating..." : "Update Service"}
             </Button>
           </div>
         </form>

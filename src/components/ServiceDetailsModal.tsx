@@ -3,12 +3,10 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, ImageOff, Layers, ScrollText } from "lucide-react";
+import { ImageOff, Layers, ScrollText } from "lucide-react";
 import { IService } from "@/types";
 
 interface ServiceDetailsModalProps {
@@ -44,7 +42,7 @@ export default function ServiceDetailsModal({
 
         <div className="px-6 py-5 space-y-5">
 
-          {/* Short Description */}
+          {/* Title */}
           {service.title && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -57,6 +55,25 @@ export default function ServiceDetailsModal({
                 <ScrollText className="w-4 h-4 text-muted-foreground/60 mt-0.5 shrink-0" />
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {service.title}
+                </p>
+              </div>
+            </div>
+          )}
+          <Separator />
+
+          {/* Service Icon */}
+          {service.serviceIcon && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-violet-500" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  Service Icon
+                </span>
+              </div>
+              <div className="flex gap-2 bg-muted/30 rounded-lg p-3.5">
+                <ScrollText className="w-4 h-4 text-muted-foreground/60 mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {service.serviceIcon}
                 </p>
               </div>
             </div>

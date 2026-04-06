@@ -49,7 +49,7 @@ const ServiceManagementPage = () => {
   // ✅ Delete handler
   const handleDelete = async (service: IService) => {
     try {
-      const res = await axios.delete(`http://localhost:3005/api/service/${service._id}`);
+      const res = await axios.delete(`https://ikengineering.co.nz/api/service/${service._id}`);
       if (res.data.success) {
         toast.success("Service deleted successfully");
         refetch();

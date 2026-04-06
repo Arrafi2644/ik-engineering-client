@@ -2,55 +2,74 @@ import React, { useState } from 'react';
 import { Wrench, Cog, Users, Truck, ShieldAlert, Settings, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { useNavigate } from 'react-router-dom';
+import { useServices } from '@/hooks/useServices';
+import { DynamicLucideIcon } from '@/utils/DynamicLucideIcon';
 
 const Services = () => {
   const [hoveredService, setHoveredService] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const services = [
-    {
-      icon: Wrench,
-      title: 'Custom Fabrication',
-      description: 'CNC machining, MIG/TIG welding, and laser cutting services tailored for precision parts and assemblies — from one-offs to large production runs.',
-      features: ['CNC Machining', 'MIG/TIG Welding', 'Laser Cutting', 'Quality Assurance'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/construction-workers-welding-night.jpg'
-    },
-    {
-      icon: Cog,
-      title: 'Mechanical Maintenance',
-      description: 'Scheduled inspections, troubleshooting, and urgent repair services to minimize downtime and keep industrial machinery running smoothly.',
-      features: ['Preventive Maintenance', 'Emergency Repairs', 'Troubleshooting', 'Equipment Optimization'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/mm.jpg'
-    },
-    {
-      icon: Users,
-      title: 'Structural Steel Engineering',
-      description: 'Design, fabrication, and on-site erection of structural steel for commercial and industrial projects, with full compliance and safety protocols.',
-      features: ['Steel Design', 'Fabrication', 'On-site Erection', 'Safety Compliance'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/KR%20pointing-sketch.jpg'
-    },
-    {
-      icon: Truck,
-      title: 'On-Site Engineering Services',
-      description: 'Mobile engineering support including welding, pipework, repairs, and installations — ideal for minimal disruption to client operations.',
-      features: ['Mobile Welding', 'Pipework', 'On-site Repairs', 'Emergency Response'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/factory-worker-operating-industrial-machine.jpg'
-    },
-    {
-      icon: ShieldAlert,
-      title: 'CAD Design & Prototyping',
-      description: '3D CAD design and prototyping services to help clients test, validate, and refine concepts before full-scale production.',
-      features: ['3D CAD Design', 'Rapid Prototyping', 'Design Validation', 'Technical Drawings'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/safety.jpg'
-    },
-    {
-      icon: Settings,
-      title: 'Machine Rebuilds & Retrofits',
-      description: 'Upgrades and modernizations of legacy machinery to extend life, improve efficiency, and meet current safety standards.',
-      features: ['Equipment Upgrades', 'Safety Compliance', 'Efficiency Improvements', 'Life Extension'],
-      coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/excavators-exhibition.jpg'
-    }
-  ];
+  // const services = [
+  //   {
+  //     icon: Wrench,
+  //     title: 'Custom Fabrication',
+  //     description: 'CNC machining, MIG/TIG welding, and laser cutting services tailored for precision parts and assemblies — from one-offs to large production runs.',
+  //     features: ['CNC Machining', 'MIG/TIG Welding', 'Laser Cutting', 'Quality Assurance'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/construction-workers-welding-night.jpg'
+  //   },
+  //   {
+  //     icon: Cog,
+  //     title: 'Mechanical Maintenance',
+  //     description: 'Scheduled inspections, troubleshooting, and urgent repair services to minimize downtime and keep industrial machinery running smoothly.',
+  //     features: ['Preventive Maintenance', 'Emergency Repairs', 'Troubleshooting', 'Equipment Optimization'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/mm.jpg'
+  //   },
+  //   {
+  //     icon: Users,
+  //     title: 'Structural Steel Engineering',
+  //     description: 'Design, fabrication, and on-site erection of structural steel for commercial and industrial projects, with full compliance and safety protocols.',
+  //     features: ['Steel Design', 'Fabrication', 'On-site Erection', 'Safety Compliance'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/KR%20pointing-sketch.jpg'
+  //   },
+  //   {
+  //     icon: Truck,
+  //     title: 'On-Site Engineering Services',
+  //     description: 'Mobile engineering support including welding, pipework, repairs, and installations — ideal for minimal disruption to client operations.',
+  //     features: ['Mobile Welding', 'Pipework', 'On-site Repairs', 'Emergency Response'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/factory-worker-operating-industrial-machine.jpg'
+  //   },
+  //   {
+  //     icon: ShieldAlert,
+  //     title: 'CAD Design & Prototyping',
+  //     description: '3D CAD design and prototyping services to help clients test, validate, and refine concepts before full-scale production.',
+  //     features: ['3D CAD Design', 'Rapid Prototyping', 'Design Validation', 'Technical Drawings'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/safety.jpg'
+  //   },
+  //   {
+  //     icon: Settings,
+  //     title: 'Machine Rebuilds & Retrofits',
+  //     description: 'Upgrades and modernizations of legacy machinery to extend life, improve efficiency, and meet current safety standards.',
+  //     features: ['Equipment Upgrades', 'Safety Compliance', 'Efficiency Improvements', 'Life Extension'],
+  //     coverImage: 'https://borxtnmxkmisnyjzrqlm.supabase.co/storage/v1/object/public/krheroslide/our%20services/excavators-exhibition.jpg'
+  //   }
+  // ];
+
+  const iconMap = {
+    'Custom Fabrication': Wrench,
+    'Mechanical Maintenance': Cog,
+    'Structural Steel Engineering': Users,
+    'On-Site Engineering Services': Truck,
+    'CAD Design & Prototyping': ShieldAlert,
+    'Machine Rebuilds & Retrofits': Settings,
+  };
+
+  const newServices = useServices();
+  const services = (newServices?.data?.data ?? []).map(service => ({
+    ...service,
+    coverImage: service.image,
+    // icon: iconMap[service.title] ?? Wrench, 
+  }));
+  console.log("services all in home ", services);
 
   return (
     <section className="py-20 bg-light-gray">
@@ -82,12 +101,17 @@ const Services = () => {
                 </div>
                 <div className="p-6">
                   <div className="relative mb-4 flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-700 ${
-                      hoveredService === index 
-                        ? 'bg-accent-yellow text-primary-blue scale-110' 
-                        : 'bg-primary-blue/10 text-primary-blue'
-                    }`}>
-                      <IconComponent className={`h-6 w-6 transition-transform duration-700 ${hoveredService === index ? 'animate-pulse' : ''}`} />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-700 ${hoveredService === index
+                      ? 'bg-accent-yellow text-primary-blue scale-110'
+                      : 'bg-primary-blue/10 text-primary-blue'
+                      }`}>
+                      {/* <IconComponent className={`h-6 w-6 transition-transform duration-700 ${hoveredService === index ? 'animate-pulse' : ''}`} /> */}
+                      <DynamicLucideIcon
+                        iconName={`${service.serviceIcon || 'Cog'}`} // Default to 'Settings' if no icon provided
+                        size={28}
+
+                        // className="text-[#002047] transition-colors duration-500 delay-150 group-hover:text-white absolute top-3 left-1 "
+                      />
                     </div>
                     <h3 className="text-xl font-montserrat font-semibold text-primary-blue group-hover:text-accent-yellow transition-colors duration-700">
                       {service.title}
@@ -95,8 +119,8 @@ const Services = () => {
                   </div>
 
                   <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg transition-transform duration-700 group-hover:shadow-lg">
-                    <img 
-                      src={service.coverImage} 
+                    <img
+                      src={service.coverImage}
                       alt={`${service.title}`}
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                     />
@@ -105,7 +129,7 @@ const Services = () => {
 
                   <CardContent className="p-0">
                     <p className="font-open-sans text-secondary-grey mb-4 line-clamp-3 transition-all duration-700 group-hover:text-gray-800">
-                      {service.description}
+                      {service.shortDescription}
                     </p>
 
                   </CardContent>

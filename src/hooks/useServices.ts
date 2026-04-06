@@ -14,7 +14,8 @@ export const useServices = (params?: IServiceQuery) => {
     queryKey: ["services", params], // ✅ important (cache handle করবে)
     queryFn: async () => {
       const res = await axios.get(
-        "http://localhost:3005/api/service",
+        "https://ikengineering.co.nz/api/service",
+        // "http://localhost:3005/api/service",
         {
           params: {
             searchTerm: params?.searchTerm,
