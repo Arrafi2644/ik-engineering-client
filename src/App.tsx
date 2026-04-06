@@ -1,4 +1,3 @@
-
 // import { Toaster } from "@/components/ui/toaster";
 // import { Toaster as Sonner } from "@/components/ui/sonner";
 // import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,7 +52,6 @@
 
 // export default App;
 
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -75,7 +73,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "./components/ui/tooltip";
 import Login from "./pages/auth/Login";
 import SettingsPage from "./pages/admin/Settings";
-const queryClient = new QueryClient()
+import { AuthProvider } from "./lib/authContext";
+import ForgotPassword from "./pages/auth/ForgetPassword";
+import Register from "./pages/auth/Register";
+import AuthCallback from "./pages/auth/AuthCallback";
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
@@ -85,28 +87,78 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Layout><Home /></Layout>} />
-              <Route path="/services" element={<Layout><Services /></Layout>} />
-              <Route path="/about" element={<Layout><About /></Layout>} />
-              <Route path="/careers" element={<Layout><Careers /></Layout>} />
-              <Route path="/our-people" element={<Layout><OurPeople /></Layout>} />
-              <Route path="/contact" element={<Layout><Contact /></Layout>} />
+            <AuthProvider>
+              <Routes>
+                {/* Public routes */}
+                <Route
+                  path="/"
+                  element={
+                    <Layout>
+                      <Home />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/services"
+                  element={
+                    <Layout>
+                      <Services />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/about"
+                  element={
+                    <Layout>
+                      <About />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/careers"
+                  element={
+                    <Layout>
+                      <Careers />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/our-people"
+                  element={
+                    <Layout>
+                      <OurPeople />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/contact"
+                  element={
+                    <Layout>
+                      <Contact />
+                    </Layout>
+                  }
+                />
 
-              <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
 
-              {/* Protected Admin routes */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/admin" element={<LayoutDashboard />}>
-                  <Route index element={<AdminHome />} />
-                  <Route path="user-management" element={<Users />} />
-                  <Route path="service-management" element={<ServicesPage />} />
-                  <Route path="settings" element={<SettingsPage />} />
+                {/* Protected Admin routes */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/admin" element={<LayoutDashboard />}>
+                    <Route index element={<AdminHome />} />
+                    <Route path="user-management" element={<Users />} />
+                    <Route
+                      path="service-management"
+                      element={<ServicesPage />}
+                    />
+                    <Route path="settings" element={<SettingsPage />} />
+                  </Route>
                 </Route>
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
