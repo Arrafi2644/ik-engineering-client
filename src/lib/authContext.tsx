@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from './supabase';
-import type { User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from "./supabase";
+import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  getToken: () => Promise<string | null>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
       } catch (error) {
-        console.error('Error getting session:', error);
+        console.error("Error getting session:", error);
       } finally {
         setIsLoading(false);
       }
@@ -43,20 +44,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-const signUp = async (email: string, password: string) => {
-  try {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    return { error };
-  } catch (error) {
-    return { error: error as Error };
-  }
-};
+  const getToken = async (): Promise<string | null> => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    return session?.access_token ?? null;
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -74,12 +83,14 @@ const signUp = async (email: string, password: string) => {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ getToken, user, isLoading, signUp, signIn, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -88,7 +99,7 @@ const signUp = async (email: string, password: string) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
+};

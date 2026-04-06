@@ -17,7 +17,7 @@ import type { LoginFormData, AuthError } from "@/types/auth";
 
 const Login = () =>  {
   const navigate = useNavigate();
-  const { signIn, isLoading } = useAuth();
+  const { signIn, isLoading, getToken } = useAuth();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -60,35 +60,49 @@ const Login = () =>  {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError(null);
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setIsSubmitting(true);
-    try {
-      const { error: signInError } = await signIn(
-        formData.email,
-        formData.password,
-      );
+  setIsSubmitting(true);
 
-      if (signInError) {
-        setError({
-          message:
-            signInError.message ||
-            "Failed to sign in. Please check your credentials.",
-          code: signInError.name,
-        });
-      } else {
-        navigate("/admin");
-      }
-    } catch {
-      setError({ message: "An unexpected error occurred. Please try again." });
-    } finally {
-      setIsSubmitting(false);
+  try {
+    const { error: signInError } = await signIn(
+      formData.email,
+      formData.password
+    );
+
+    if (signInError) {
+      setError({
+        message:
+          signInError.message ||
+          "Failed to sign in. Please check your credentials.",
+      });
+      return;
     }
-  };
+
+    const token = await getToken();
+
+    await fetch("http://localhost:5000/api/auth/sync-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        email: formData.email,
+      }),
+    });
+
+    navigate("/admin");
+  } catch {
+    setError({ message: "Something went wrong" });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (isLoading) {
     return (
