@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/authContext";
 import type { LoginFormData, AuthError } from "@/types/auth";
+import { axiosInstance } from "@/lib/axios";
 
 const Login = () =>  {
   const navigate = useNavigate();
@@ -85,16 +86,20 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
     const token = await getToken();
 
-    await fetch("http://localhost:5000/api/auth/sync-user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        email: formData.email,
-      }),
-    });
+    await axiosInstance.post("/auth/supabase-login", {
+  email: formData.email,
+});
+
+    // await fetch("http://localhost:3005/api/sync-user", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: JSON.stringify({
+    //     email: formData.email,
+    //   }),
+    // });
 
     navigate("/admin");
   } catch {

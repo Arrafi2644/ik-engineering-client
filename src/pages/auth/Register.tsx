@@ -1,102 +1,113 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/lib/authContext';
-import type { RegisterFormData, AuthError } from '@/types/auth';
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/lib/authContext";
+import type { RegisterFormData, AuthError } from "@/types/auth";
+import { Link, useLocation } from "react-router-dom";
+import { axiosInstance } from "@/lib/axios";
 
 const Register = () => {
   const { signUp, isLoading } = useAuth();
 
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
+    firstName: "",
+    lastName: "",
     agreeToTerms: false,
   });
 
   const [error, setError] = useState<AuthError | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'strong' | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState<
+    "weak" | "fair" | "strong" | null
+  >(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     // Calculate password strength
-    if (name === 'password') {
+    if (name === "password") {
       const strength = calculatePasswordStrength(value);
       setPasswordStrength(strength);
     }
   };
 
-  const calculatePasswordStrength = (password: string): 'weak' | 'fair' | 'strong' => {
+  const calculatePasswordStrength = (
+    password: string,
+  ): "weak" | "fair" | "strong" => {
     let strength = 0;
-    
+
     if (password.length >= 8) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-    if (strength <= 1) return 'weak';
-    if (strength <= 2) return 'fair';
-    return 'strong';
+    if (strength <= 1) return "weak";
+    if (strength <= 2) return "fair";
+    return "strong";
   };
 
   const getPasswordStrengthColor = () => {
-    if (!passwordStrength) return 'bg-muted';
-    if (passwordStrength === 'weak') return 'bg-red-500';
-    if (passwordStrength === 'fair') return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (!passwordStrength) return "bg-muted";
+    if (passwordStrength === "weak") return "bg-red-500";
+    if (passwordStrength === "fair") return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   const validateForm = (): boolean => {
     if (!formData.firstName.trim()) {
-      setError({ message: 'Please enter your first name' });
+      setError({ message: "Please enter your first name" });
       return false;
     }
 
     if (!formData.lastName.trim()) {
-      setError({ message: 'Please enter your last name' });
+      setError({ message: "Please enter your last name" });
       return false;
     }
 
     if (!formData.email.trim()) {
-      setError({ message: 'Please enter your email address' });
+      setError({ message: "Please enter your email address" });
       return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError({ message: 'Please enter a valid email address' });
+      setError({ message: "Please enter a valid email address" });
       return false;
     }
 
     if (!formData.password) {
-      setError({ message: 'Please enter a password' });
+      setError({ message: "Please enter a password" });
       return false;
     }
 
     if (formData.password.length < 8) {
-      setError({ message: 'Password must be at least 8 characters' });
+      setError({ message: "Password must be at least 8 characters" });
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError({ message: 'Passwords do not match' });
+      setError({ message: "Passwords do not match" });
       return false;
     }
 
     if (!formData.agreeToTerms) {
-      setError({ message: 'Please agree to the terms and conditions' });
+      setError({ message: "Please agree to the terms and conditions" });
       return false;
     }
 
@@ -113,20 +124,33 @@ const Register = () => {
 
     setIsSubmitting(true);
     try {
-      const { error: signUpError } = await signUp(formData.email, formData.password);
+      const { error: signUpError } = await signUp(
+        formData.email,
+        formData.password,
+      );
 
       if (signUpError) {
         setError({
-          message: signUpError.message || 'Failed to create account. Please try again.',
-          code: signUpError.name,
+          message: signUpError.message || "Failed to create account.",
         });
-      } else {
-        // Redirect to login with success message
-        location.href = '/login?registered=true';
+        return;
       }
+
+      await axiosInstance.post("/user/register", {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      });
+
+      location.href = "/login?registered=true";
     } catch (err) {
+      if (err.response?.status !== 409) {
+        throw err;
+      }
+
       setError({
-        message: 'An unexpected error occurred. Please try again.',
+        message: "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -153,7 +177,9 @@ const Register = () => {
             <span className="text-3xl">🏗️</span>
           </div>
           <h1 className="text-3xl font-bold text-foreground">Ik Engineering</h1>
-          <p className="text-sm text-muted-foreground mt-1">Create Your Account</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create Your Account
+          </p>
         </div>
 
         {/* Register Card */}
@@ -259,12 +285,20 @@ const Register = () => {
                       <div
                         className={`h-full transition-all ${getPasswordStrengthColor()}`}
                         style={{
-                          width: passwordStrength === 'weak' ? '33%' : passwordStrength === 'fair' ? '66%' : '100%'
+                          width:
+                            passwordStrength === "weak"
+                              ? "33%"
+                              : passwordStrength === "fair"
+                                ? "66%"
+                                : "100%",
                         }}
                       ></div>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Password strength: <span className="capitalize font-semibold">{passwordStrength}</span>
+                      Password strength:{" "}
+                      <span className="capitalize font-semibold">
+                        {passwordStrength}
+                      </span>
                     </p>
                   </div>
                 )}
@@ -272,7 +306,10 @@ const Register = () => {
 
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium"
+                >
                   Confirm Password
                 </Label>
                 <Input
@@ -296,18 +333,30 @@ const Register = () => {
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onCheckedChange={(checked) =>
-                    setFormData(prev => ({ ...prev, agreeToTerms: checked === true }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      agreeToTerms: checked === true,
+                    }))
                   }
                   disabled={isSubmitting}
                   className="mt-1"
                 />
-                <Label htmlFor="agreeToTerms" className="text-xs font-normal cursor-pointer">
-                  I agree to the{' '}
-                  <Link to="/terms" className="text-primary hover:text-primary/80">
+                <Label
+                  htmlFor="agreeToTerms"
+                  className="text-xs font-normal cursor-pointer"
+                >
+                  I agree to the{" "}
+                  <Link
+                    to="/terms"
+                    className="text-primary hover:text-primary/80"
+                  >
                     Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link to="/privacy" className="text-primary hover:text-primary/80">
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    to="/privacy"
+                    className="text-primary hover:text-primary/80"
+                  >
                     Privacy Policy
                   </Link>
                 </Label>
@@ -326,7 +375,7 @@ const Register = () => {
                     Creating Account...
                   </>
                 ) : (
-                  'Create Account'
+                  "Create Account"
                 )}
               </Button>
             </form>
@@ -337,7 +386,9 @@ const Register = () => {
                 <div className="w-full border-t border-border/50"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Already have an account?</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Already have an account?
+                </span>
               </div>
             </div>
 
@@ -360,6 +411,6 @@ const Register = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Register;
