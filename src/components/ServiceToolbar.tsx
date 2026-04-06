@@ -24,7 +24,7 @@ export default function ServiceToolbar({ onSearchChange, onSortChange }: Service
                 <Sort onChange={onSortChange} />
             </div>
 
-            <div className="grid grid-cols-2 items-center gap-4">
+            <div className="flex items-end gap-2">
                 {/* Register User Modal */}
                 <CreateServiceModal />
             </div>

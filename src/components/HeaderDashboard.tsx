@@ -10,7 +10,7 @@ const HeaderDashboard = () => {
  const handleLogout = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3005/api/auth/logout", {
+      const res = await fetch("https://ikengineering.co.nz/api/auth/logout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -33,7 +33,7 @@ const HeaderDashboard = () => {
   return (
     <header className="bg-white shadow p-4 flex justify-between items-center">
       <h1 className="text-xl font-bold">Admin Dashboard</h1>
-      <Button onClick={handleLogout}>Logout</Button>
+      <Button className="bg-violet-600" onClick={handleLogout}>Logout</Button>
     </header>
   );
 };

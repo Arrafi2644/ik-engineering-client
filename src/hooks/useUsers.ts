@@ -14,7 +14,7 @@ export const useUsers = (params?: IServiceQuery) => {
     queryKey: ["users", params],
     queryFn: async () => {
       const res = await axios.get(
-        "http://localhost:3005/api/user",
+        "https://ikengineering.co.nz/api/user",
         {
           params: {
             searchTerm: params?.searchTerm,

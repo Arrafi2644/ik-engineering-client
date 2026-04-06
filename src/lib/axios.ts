@@ -4,7 +4,7 @@ import { createClient } from "./supabase";
 const supabase = createClient()
 
 export const axiosInstance = axios.create({
-    baseURL: "http://localhost:3005/api",
+    baseURL: "https://ikengineering.co.nz/api",
     withCredentials: true
 });
 
