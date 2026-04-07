@@ -58,7 +58,7 @@ axiosInstance.interceptors.response.use(
       console.warn("Unauthorized - maybe token expired")
 
       // optional: redirect to login
-      // window.location.href = "/login"
+      window.location.href = "/login"
     }
 
     return Promise.reject(error)
