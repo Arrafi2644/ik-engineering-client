@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ import { useAuth } from "@/lib/authContext";
 import type { RegisterFormData, AuthError } from "@/types/auth";
 import { Link, useLocation } from "react-router-dom";
 import { axiosInstance } from "@/lib/axios";
+import { toast } from "sonner";
 
 const Register = () => {
   const { signUp, isLoading } = useAuth();
@@ -114,48 +116,40 @@ const Register = () => {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError(null);
 
-    if (!validateForm()) {
+  if (!validateForm()) return;
+
+  setIsSubmitting(true);
+
+  try {
+    await axiosInstance.post("/user/register", {
+      email: formData.email,
+      password: formData.password,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+    });
+
+    const { error } = await signUp(formData.email, formData.password);
+
+    if (error) {
+      setError({ message: error.message });
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const { error: signUpError } = await signUp(
-        formData.email,
-        formData.password,
-      );
-
-      if (signUpError) {
-        setError({
-          message: signUpError.message || "Failed to create account.",
-        });
-        return;
-      }
-
-      await axiosInstance.post("/user/register", {
-        email: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-      });
-
-      location.href = "/login?registered=true";
-    } catch (err) {
-      if (err.response?.status !== 409) {
-        throw err;
-      }
-
-      setError({
-        message: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    toast.success("Account created successfully!");
+    location.href = "/login?registered=true";
+  } catch (err: any) {
+    setError({
+      message:
+        err.response?.data?.message || "Registration failed. Try again.",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (isLoading) {
     return (

@@ -84,22 +84,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       return;
     }
 
-    const token = await getToken();
-
     await axiosInstance.post("/auth/supabase-login", {
-  email: formData.email,
-});
-
-    // await fetch("http://localhost:3005/api/sync-user", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: JSON.stringify({
-    //     email: formData.email,
-    //   }),
-    // });
+      email: formData.email,
+    });
 
     navigate("/admin");
   } catch {
