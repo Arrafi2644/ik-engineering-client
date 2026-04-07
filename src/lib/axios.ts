@@ -4,7 +4,7 @@ import { createClient } from "./supabase";
 const supabase = createClient()
 
 export const axiosInstance = axios.create({
-    baseURL: "http://localhost:3005/api",
+    baseURL: "https://ikengineering.co.nz/api",
     withCredentials: true
 });
 
@@ -51,12 +51,13 @@ axiosInstance.interceptors.request.use(
 //     return Promise.reject(error);
 //   });
 
-// response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized - redirecting...")
+      console.warn("Unauthorized - maybe token expired")
+
+      // optional: redirect to login
       window.location.href = "/login"
     }
 
